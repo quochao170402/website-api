@@ -1,13 +1,28 @@
-FROM node:21-alpine3.18
+FROM node:20-alpine as builder
 
-WORKDIR /app
+ENV NODE_ENV build
 
-COPY package.json ./
+USER node
+WORKDIR /home/node
 
-COPY yarn.lock ./
+COPY package*.json ./
+# Install app dependencies
+RUN npm install
+COPY --chown=node:node . .
 
-COPY ./ ./
+RUN npm run build
 
-RUN yarn
+# ---
 
-CMD ["yarn", "start"]
+FROM node:20-alpine
+
+ENV NODE_ENV production
+
+USER node
+WORKDIR /home/node
+
+COPY --from=builder --chown=node:node /home/node/package*.json ./
+COPY --from=builder --chown=node:node /home/node/node_modules/ ./node_modules/
+COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
+
+CMD ["node", "dist/main.js"]
