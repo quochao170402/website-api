@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Logger,
+} from '@nestjs/common';
 import { ParseIntPipe } from '@nestjs/common/pipes/parse-int.pipe';
 import { Note } from './note.entity';
 import { NotesService } from './notes.service';
@@ -9,6 +17,7 @@ export class NotesController {
 
   @Get()
   findAll() {
+    Logger.log('Get all notes');
     return this.notesService.getNotes();
   }
 
@@ -18,6 +27,7 @@ export class NotesController {
   // }
 
   @Post() create(@Body() note: Note) {
+    Logger.log('Create new note ' + note.title);
     return this.notesService.createNote(note);
   }
 
